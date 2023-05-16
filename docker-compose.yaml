@@ -1,0 +1,39 @@
+﻿version: '3.8'
+
+services:
+
+ DbLab:
+  image: mysql:latest
+  restart: always
+  environment:
+   MYSQL_DATABASE: 'Deadline'
+   MYSQL_USER: 'user'
+   MYSQL_PASSWORD: 'deadline'
+   MYSQL_ROOT_PASSWORD: 'password'
+   MYSQL_TCP_PORT: 3320
+
+  ports:
+   - '3320:3320'
+  expose:
+   - '3320'
+  volumes:
+   - dblab:/var/lib/mysql
+
+ mssql:
+   image: 'mcr.microsoft.com/mssql/server'
+   ports:
+    - '1434:1433'
+   environment:
+    - ACCEPT_EULA=Y
+    - SA_PASSWORD=deadline
+   volumes:
+    - mssql1:/var/opt/mssql
+
+ redis:
+   image: 'bitnami/redis:latest'
+   environment:
+    - ALLOW_EMPTY_PASSWORD=yes
+   network_mode: 'host'
+volumes:
+ mssql1:
+ dblab:
