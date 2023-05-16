@@ -8,5 +8,9 @@ namespace DeadLine.DataProvide
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
 
+        public DateTime LastLogin { get; set; }
+
+        public bool IsProfessor { get; set; }
+
     }
 }

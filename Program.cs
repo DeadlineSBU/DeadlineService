@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("sqlserverconnection")));
+builder.Services.AddDbContext<DeadlineContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("mysqlconnection")));
 
 
 // For Identity
