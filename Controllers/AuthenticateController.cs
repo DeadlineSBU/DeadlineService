@@ -40,15 +40,15 @@ namespace DeadLine.Controllers
 
 
         [HttpPost]
-        [Route("login")]
+        [Route("loginProfessor")]
 
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> LoginProfessor([FromBody] LoginModel model)
         {
             try
             {
 
                 var user = await _userManager.FindByNameAsync(model.Username);
-                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (user != null && user.IsProfessor && await _userManager.CheckPasswordAsync(user, model.Password))
                 {
                     var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -56,13 +56,59 @@ namespace DeadLine.Controllers
                 {
                     new Claim("user_id",user.Id as string),
                     new Claim("username", user.UserName as string),
+                    new Claim("isProfessor",user.IsProfessor.ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
-                    foreach (var userRole in userRoles)
+
+                    var token = CreateToken(authClaims);
+                    var refreshToken = GenerateRefreshToken();
+
+                    _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
+
+                    user.RefreshToken = refreshToken;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+
+                    await _userManager.UpdateAsync(user);
+                    return Ok(new
                     {
-                        authClaims.Add(new Claim("role", userRole as string));
-                    }
+                        access_token = new JwtSecurityTokenHandler().WriteToken(token),
+                        refresh_token = refreshToken,
+                        Expiration = token.ValidTo
+                    });
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [HttpPost]
+        [Route("loginStudent")]
+
+        public async Task<IActionResult> LoginStudent([FromBody] LoginModel model)
+        {
+            try
+            {
+
+                var user = await _userManager.FindByNameAsync(model.Username);
+                if (user != null && !user.IsProfessor && await _userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    var userRoles = await _userManager.GetRolesAsync(user);
+
+                    var authClaims = new List<Claim>
+                {
+                    new Claim("user_id",user.Id as string),
+                    new Claim("username", user.UserName as string),
+                    new Claim("isProfessor",user.IsProfessor.ToString()),
+
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
 
                     var token = CreateToken(authClaims);
                     var refreshToken = GenerateRefreshToken();
@@ -91,8 +137,8 @@ namespace DeadLine.Controllers
         }
 
         [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        [Route("registerProfessor")]
+        public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
         {
             try
             {
@@ -108,7 +154,8 @@ namespace DeadLine.Controllers
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = model.Username,
-
+                    Name
+                    IsProfessor = true,
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
@@ -127,52 +174,43 @@ namespace DeadLine.Controllers
 
         }
 
-
-
-
-
-
         [HttpPost]
-        [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        [Route("registerStudent")]
+        public async Task<IActionResult> RegisterStudent([FromBody] RegisterModel model)
         {
             try
             {
                 var userExists = await _userManager.FindByNameAsync(model.Username);
                 if (userExists != null)
+                {
+
                     return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+
+                }
 
                 ApplicationUser user = new()
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
-                    UserName = model.Username
+                    UserName = model.Username,
+                    IsProfessor=false,
+
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
+                {
+
                     return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-                if (!await _roleManager.RoleExistsAsync(UserRoles.User))
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
-
-                if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                {
-                    await _userManager.AddToRoleAsync(user, UserRoles.Admin);
                 }
-                if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                {
-                    await _userManager.AddToRoleAsync(user, UserRoles.User);
-                }
+
                 return Ok(new { Status = "Success", Message = "User created successfully!" });
             }
             catch (Exception ex)
             {
+
                 return BadRequest(ex.Message);
             }
 
         }
-
         [HttpPost]
         [Route("refresh-token")]
         public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
@@ -237,30 +275,6 @@ namespace DeadLine.Controllers
 
                 user.RefreshToken = null;
                 await _userManager.UpdateAsync(user);
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-
-        }
-
-        [Authorize]
-        [HttpPost]
-        [Route("revoke-all")]
-        public async Task<IActionResult> RevokeAll()
-        {
-            try
-            {
-                var users = _userManager.Users.ToList();
-                foreach (var user in users)
-                {
-                    user.RefreshToken = null;
-                    await _userManager.UpdateAsync(user);
-                }
 
                 return NoContent();
             }
