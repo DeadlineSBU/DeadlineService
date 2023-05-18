@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Newtonsoft.Json;
+using Deadline.redis;
 
 namespace DeadLine.Controllers
 {
@@ -21,28 +23,38 @@ namespace DeadLine.Controllers
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IRedisCache _redisCache;
+        private readonly IHttpClientFactory _clientFactory;
 
         private readonly IConfiguration _configuration;
 
         public AuthenticateController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration
+            IConfiguration configuration,
+            ApplicationDbContext context,
+            IRedisCache redisCache,
+            IHttpClientFactory client
             )
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
-        }
+            _context = context;
+            _redisCache = redisCache;
+            _clientFactory = client;
+
+    }
 
 
 
         [HttpPost]
-        [Route("loginProfessor")]
+        [Route("login")]
 
-        public async Task<IActionResult> LoginProfessor([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             try
             {
@@ -88,45 +100,62 @@ namespace DeadLine.Controllers
         }
 
 
-        [HttpPost]
-        [Route("loginStudent")]
+       
 
-        public async Task<IActionResult> LoginStudent([FromBody] LoginModel model)
+        [HttpPost]
+        [Route("checkForRegister")]
+        public async Task<IActionResult> CheckForRegisterProfessor([FromBody] RegisterModel model)
         {
             try
             {
+                var userExists = await _userManager.FindByNameAsync(model.Username);
 
-                var user = await _userManager.FindByNameAsync(model.Username);
-                if (user != null && !user.IsProfessor && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (userExists != null)
                 {
-                    var userRoles = await _userManager.GetRolesAsync(user);
 
-                    var authClaims = new List<Claim>
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+
+                }
+                var mobileExists = _context.Users.Where(u => u.PhoneNumber == model.MobileNumber).FirstOrDefault();
+                if(mobileExists != null)
                 {
-                    new Claim("user_id",user.Id as string),
-                    new Claim("username", user.UserName as string),
-                    new Claim("isProfessor",user.IsProfessor.ToString()),
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "mobile number already exists!" });
+                }
 
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+               
+      
+
+                var random = new Random();
+                var randomNumber = "";
+                randomNumber = random.Next(1000, 9999).ToString();
+                
+                var param = new RedisModel
+                {
+                    MobileNumber = model.MobileNumber,
+                    Message = "1234",
+                    FirstName = model.FirstName,
+                    IsProfessor = model.IsProfessor,
+                    LastName = model.LastName,
+                    Password = model.Password,
+                    Username = model.Username   
                 };
 
-                    var token = CreateToken(authClaims);
-                    var refreshToken = GenerateRefreshToken();
 
-                    _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
+                /*var sms = new Ghasedak.Core.Api(SMSToken);
 
-                    user.RefreshToken = refreshToken;
-                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+                var result = await sms.SendSMSAsync(dto.message, dto.mobile, linenumber: LineNumber);
 
-                    await _userManager.UpdateAsync(user);
-                    return Ok(new
-                    {
-                        access_token = new JwtSecurityTokenHandler().WriteToken(token),
-                        refresh_token = refreshToken,
-                        Expiration = token.ValidTo
-                    });
-                }
-                return Unauthorized();
+                if (result.Result.Code != 200)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "Sms not sent!" });
+
+                }*/
+
+
+                //adding sms to redis by mobile and message
+                await _redisCache.SetAsync(model.MobileNumber, param, 5);
+
+                return Ok(new { Status = "Success", Message = "Register is OK! OTP Sent" });
             }
             catch (Exception ex)
             {
@@ -136,12 +165,18 @@ namespace DeadLine.Controllers
 
         }
 
+
         [HttpPost]
-        [Route("registerProfessor")]
-        public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] VerifySmsModel smsModel)
         {
             try
             {
+                var model = await _redisCache.GetAsync(smsModel.mobileNumber);
+                if (model == null || model.Message != smsModel.verificationCode ) return BadRequest("Invalid code!");
+                
+                
+                
                 var userExists = await _userManager.FindByNameAsync(model.Username);
                 if (userExists != null)
                 {
@@ -154,7 +189,11 @@ namespace DeadLine.Controllers
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = model.Username,
-                    IsProfessor = true,
+                    IsProfessor = model.IsProfessor,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.MobileNumber,
+
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
@@ -173,43 +212,7 @@ namespace DeadLine.Controllers
 
         }
 
-        [HttpPost]
-        [Route("registerStudent")]
-        public async Task<IActionResult> RegisterStudent([FromBody] RegisterModel model)
-        {
-            try
-            {
-                var userExists = await _userManager.FindByNameAsync(model.Username);
-                if (userExists != null)
-                {
-
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
-
-                }
-
-                ApplicationUser user = new()
-                {
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    UserName = model.Username,
-                    IsProfessor = false,
-
-                };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (!result.Succeeded)
-                {
-
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-                }
-
-                return Ok(new { Status = "Success", Message = "User created successfully!" });
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-
-        }
+       
         [HttpPost]
         [Route("refresh-token")]
         public async Task<IActionResult> RefreshToken(TokenModel tokenModel)

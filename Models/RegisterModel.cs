@@ -4,6 +4,11 @@ namespace DeadLine.Models
 {
     public class RegisterModel
     {
+
+        [Required(ErrorMessage = "IsProfessor is required")]
+        public bool IsProfessor { get; set; } 
+
+
         [Required(ErrorMessage = "First Name is required")]
         public string? FirstName { get; set; }
 

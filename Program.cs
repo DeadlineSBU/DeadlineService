@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Microsoft.Extensions.Configuration;
+using Deadline.redis;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +61,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Deadline Service", Version = "v1" });
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -97,7 +99,17 @@ builder.Services.AddCors(options =>
       options.AddPolicy("CORSPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((hosts) => true));
   }
   );
+var redisConfig = builder.Configuration.GetSection("RedisCacheConfiguration").Get<RedisCacheConfiguration>();
 
+builder.Services.AddSingleton(redisConfig);
+
+builder.Services.AddRedisCache(options =>
+{
+    options.Connection = redisConfig.Connection;
+    options.InstanceName = redisConfig.InstanceName;
+    options.DbNumber = redisConfig.DbNumber;
+    options.UseFromInstanceNameInKey = redisConfig.UseFromInstanceNameInKey;
+});
 var app = builder.Build();
 
 
