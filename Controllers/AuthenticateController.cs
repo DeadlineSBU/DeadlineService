@@ -25,9 +25,7 @@ namespace DeadLine.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IRedisCache _redisCache;
-        private readonly IHttpClientFactory _clientFactory;
 
         private readonly IConfiguration _configuration;
 
@@ -41,13 +39,11 @@ namespace DeadLine.Controllers
             )
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
             _redisCache = redisCache;
-            _clientFactory = client;
 
-    }
+        }
 
 
 
@@ -100,7 +96,7 @@ namespace DeadLine.Controllers
         }
 
 
-       
+
 
         [HttpPost]
         [Route("checkForRegister")]
@@ -117,18 +113,18 @@ namespace DeadLine.Controllers
 
                 }
                 var mobileExists = _context.Users.Where(u => u.PhoneNumber == model.MobileNumber).FirstOrDefault();
-                if(mobileExists != null)
+                if (mobileExists != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "mobile number already exists!" });
                 }
 
-               
-      
+
+
 
                 var random = new Random();
                 var randomNumber = "";
                 randomNumber = random.Next(1000, 9999).ToString();
-                
+
                 var param = new RedisModel
                 {
                     MobileNumber = model.MobileNumber,
@@ -137,7 +133,7 @@ namespace DeadLine.Controllers
                     IsProfessor = model.IsProfessor,
                     LastName = model.LastName,
                     Password = model.Password,
-                    Username = model.Username   
+                    Username = model.Username
                 };
 
 
@@ -173,10 +169,10 @@ namespace DeadLine.Controllers
             try
             {
                 var model = await _redisCache.GetAsync(smsModel.mobileNumber);
-                if (model == null || model.Message != smsModel.verificationCode ) return BadRequest("Invalid code!");
-                
-                
-                
+                if (model == null || model.Message != smsModel.verificationCode) return BadRequest("Invalid code!");
+
+
+
                 var userExists = await _userManager.FindByNameAsync(model.Username);
                 if (userExists != null)
                 {
@@ -212,7 +208,7 @@ namespace DeadLine.Controllers
 
         }
 
-       
+
         [HttpPost]
         [Route("refresh-token")]
         public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
