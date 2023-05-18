@@ -20,6 +20,8 @@ namespace DeadLine.DataProvide
         public DateTime? CloseDate { get; set; }
         public string FileFormats { get; set; }
         public int CourseId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
 
         public virtual Course Course { get; set; }
         public virtual ICollection<DeadlineAnnouncement> DeadlineAnnouncements { get; set; }

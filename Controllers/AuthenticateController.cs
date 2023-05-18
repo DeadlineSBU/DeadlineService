@@ -154,7 +154,6 @@ namespace DeadLine.Controllers
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = model.Username,
-                    Name
                     IsProfessor = true,
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -192,7 +191,7 @@ namespace DeadLine.Controllers
                 {
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = model.Username,
-                    IsProfessor=false,
+                    IsProfessor = false,
 
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);

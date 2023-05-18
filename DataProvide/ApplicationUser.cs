@@ -12,5 +12,10 @@ namespace DeadLine.DataProvide
 
         public bool IsProfessor { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+
     }
 }

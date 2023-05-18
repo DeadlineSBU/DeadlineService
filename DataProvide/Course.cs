@@ -24,7 +24,6 @@ namespace DeadLine.DataProvide
         public string PasswordHash { get; set; }
 
         public virtual CourseStatus CourseStatus { get; set; }
-        public virtual Professor Professor { get; set; }
         public virtual ICollection<CourseAnnouncement> CourseAnnouncements { get; set; }
         public virtual ICollection<Deadline> Deadlines { get; set; }
         public virtual ICollection<Discussion> Discussions { get; set; }

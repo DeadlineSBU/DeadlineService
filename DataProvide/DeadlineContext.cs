@@ -26,13 +26,16 @@ namespace DeadLine.DataProvide
         public virtual DbSet<DeadlinePenalty> DeadlinePenalties { get; set; }
         public virtual DbSet<Discussion> Discussions { get; set; }
         public virtual DbSet<Document> Documents { get; set; }
-        public virtual DbSet<Professor> Professors { get; set; }
         public virtual DbSet<Reply> Replies { get; set; }
-        public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<StudentCourse> StudentCourses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseMySQL("Server=10.51.10.137;Port=3320;Database=Deadline;Uid=user;Pwd=deadline");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -69,8 +72,6 @@ namespace DeadLine.DataProvide
 
                 entity.HasIndex(e => e.CourseStatusId, "fk_Course_CourseStatus1_idx");
 
-                entity.HasIndex(e => e.ProfessorId, "fk_Course_Professor1_idx");
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.CourseStatusId).HasColumnName("courseStatusId");
@@ -100,12 +101,6 @@ namespace DeadLine.DataProvide
                     .HasForeignKey(d => d.CourseStatusId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Course_CourseStatus1");
-
-                entity.HasOne(d => d.Professor)
-                    .WithMany(p => p.Courses)
-                    .HasForeignKey(d => d.ProfessorId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_Course_Professor1");
             });
 
             modelBuilder.Entity<CourseAnnouncement>(entity =>
@@ -159,11 +154,20 @@ namespace DeadLine.DataProvide
 
                 entity.Property(e => e.CreatedDate).HasColumnName("createdDate");
 
+                entity.Property(e => e.Description)
+                    .HasMaxLength(999)
+                    .HasColumnName("description");
+
                 entity.Property(e => e.FileFormats)
                     .HasMaxLength(999)
                     .HasColumnName("fileFormats");
 
                 entity.Property(e => e.OpenDate).HasColumnName("openDate");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(45)
+                    .HasColumnName("title");
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Deadlines)
@@ -245,8 +249,6 @@ namespace DeadLine.DataProvide
 
                 entity.HasIndex(e => e.DeadlineId, "fk_Document_Deadline1_idx");
 
-                entity.HasIndex(e => e.StudentId, "fk_Document_Student1_idx");
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Date).HasColumnName("date");
@@ -270,21 +272,6 @@ namespace DeadLine.DataProvide
                     .HasForeignKey(d => d.DeadlineId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Document_Deadline1");
-
-                entity.HasOne(d => d.Student)
-                    .WithMany(p => p.Documents)
-                    .HasForeignKey(d => d.StudentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_Document_Student1");
-            });
-
-            modelBuilder.Entity<Professor>(entity =>
-            {
-                entity.ToTable("Professor");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.UserId).HasColumnName("userId");
             });
 
             modelBuilder.Entity<Reply>(entity =>
@@ -308,13 +295,6 @@ namespace DeadLine.DataProvide
                     .HasConstraintName("fk_Reply_Comment1");
             });
 
-            modelBuilder.Entity<Student>(entity =>
-            {
-                entity.ToTable("Student");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-            });
-
             modelBuilder.Entity<StudentCourse>(entity =>
             {
                 entity.HasNoKey();
@@ -322,8 +302,6 @@ namespace DeadLine.DataProvide
                 entity.ToTable("StudentCourse");
 
                 entity.HasIndex(e => e.CourseId, "fk_StudentCourse_Course1_idx");
-
-                entity.HasIndex(e => e.StudentId, "fk_StudentCourse_Student1_idx");
 
                 entity.Property(e => e.CourseId).HasColumnName("courseId");
 
@@ -336,12 +314,6 @@ namespace DeadLine.DataProvide
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_StudentCourse_Course1");
-
-                entity.HasOne(d => d.Student)
-                    .WithMany()
-                    .HasForeignKey(d => d.StudentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_StudentCourse_Student1");
             });
 
             OnModelCreatingPartial(modelBuilder);

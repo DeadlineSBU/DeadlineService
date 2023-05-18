@@ -16,6 +16,5 @@ namespace DeadLine.DataProvide
         public DateTime? Date { get; set; }
 
         public virtual Deadline Deadline { get; set; }
-        public virtual Student Student { get; set; }
     }
 }

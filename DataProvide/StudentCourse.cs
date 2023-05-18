@@ -12,6 +12,5 @@ namespace DeadLine.DataProvide
         public DateTime JoinDate { get; set; }
 
         public virtual Course Course { get; set; }
-        public virtual Student Student { get; set; }
     }
 }
