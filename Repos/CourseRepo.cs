@@ -1,7 +1,9 @@
+using DeadLine.Models;
+
 namespace DeadLine.Repos{
     class CourseRepo : ICourseRepo
     {
-        public Task<object> AddCourse()
+        public Task<object> AddCourse(AddCourseDTO dto)
         {
             throw new NotImplementedException();
         }
@@ -36,7 +38,7 @@ namespace DeadLine.Repos{
             throw new NotImplementedException();
         }
 
-        public Task<object> JoinCourse(int id)
+        public Task<object> JoinCourse(int studentId, JoinCourseDTO dto)
         {
             throw new NotImplementedException();
         }

@@ -1,11 +1,12 @@
+using DeadLine.Models; 
 namespace DeadLine.Repos
 {
     interface ICourseRepo
     {
-        public Task<object> AddCourse();
+        public Task<object> AddCourse(AddCourseDTO dto);
         public Task<object> GetCourse(int id);
 
-        public Task<object> JoinCourse(int id);
+        public Task<object> JoinCourse(int studentId, JoinCourseDTO dto);
         public Task<object> GetStudents(int id);
 
         public Task<object> GetDeadlines(int id);
