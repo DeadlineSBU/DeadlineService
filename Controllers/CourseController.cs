@@ -45,8 +45,33 @@ namespace DeadLine.Controllers
             _redisCache = redisCache;
         }
 
+        [Authorize]
+        [HttpPost]
+        [Route("addCourse")]
+        public async Task<IActionResult> AddCourse([FromBody] AddCourseDTO dto)
+        {
+            try
+            {
+                if(!canAccessProf(true))
+                    return Unauthorized();
 
 
 
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        private bool canAccessProf(bool professor)
+        {
+            var claim = HttpContext.User.Claims.Where(x => x.Type == "isProfessor").FirstOrDefault();
+            if (claim == null)
+                return false;
+            return claim.Value == professor.ToString();
+        }
     }
 }
