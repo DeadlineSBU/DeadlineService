@@ -59,7 +59,7 @@ namespace DeadLine.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("GetDiscussionById/{id}")]
         public async Task<IActionResult> GetDiscussion(int id)
         {
@@ -76,6 +76,102 @@ namespace DeadLine.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("ListenOnDiscussion/{id}")]
+        public async Task<IActionResult> ListenOnDiscussion(int id)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _discussionRepo.ListenOnDiscussion(userId, id);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("AddComment/{id}")]
+        public async Task<IActionResult> AddComment(int id, CommentDTO dto)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _discussionRepo.AddComment(userId, id, dto);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("ReplyOnComment/{id}")]
+        public async Task<IActionResult> ReplyOnComment(int id, CommentReplyDTO dto)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _discussionRepo.ReplyOnComment(userId, id, dto);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetProfessorDiscussions")]
+        public async Task<IActionResult> GetProfessorDiscussions()
+        {
+            try
+            {
+                if (!canAccessProf(true))
+                    return Unauthorized();
+                var userId = getUserId();
+
+                var res = await _discussionRepo.GetProfessorDiscussions(userId);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetStudentDiscussions")]
+        public async Task<IActionResult> GetStudentDiscussions()
+        {
+            try
+            {
+                if (!canAccessProf(false))
+                    return Unauthorized();
+                var userId = getUserId();
+
+                var res = await _discussionRepo.GetStudentDiscussions(userId);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
 
         private bool canAccessProf(bool professor)
         {
