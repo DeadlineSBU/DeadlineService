@@ -11,6 +11,7 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Deadline.redis;
 using System.Configuration;
+using DeadLine.Repos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("sqlserverconnection")));
 builder.Services.AddDbContext<DeadlineContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("mysqlconnection")));
 
+builder.Services.AddScoped<ICourseRepo,CourseRepo>();
 
 // For Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

@@ -15,7 +15,7 @@ namespace DeadLine.DataProvide
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public string Value { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int DiscussionId { get; set; }
 
         public virtual Discussion Discussion { get; set; }

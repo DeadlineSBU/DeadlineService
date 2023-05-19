@@ -9,12 +9,6 @@ using System.Security.Cryptography;
 using System.Text;
 using DeadLine.DataProvide;
 using DeadLine.Models;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using Newtonsoft.Json;
 using Deadline.redis;
 
 namespace DeadLine.Controllers
@@ -56,7 +50,7 @@ namespace DeadLine.Controllers
             {
 
                 var user = await _userManager.FindByNameAsync(model.Username);
-                if (user != null && user.IsProfessor && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
                 {
                     var userRoles = await _userManager.GetRolesAsync(user);
 

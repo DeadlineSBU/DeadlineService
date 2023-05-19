@@ -12,7 +12,7 @@ namespace DeadLine.DataProvide
         public string Url { get; set; }
         public double? Grade { get; set; }
         public int DeadlineId { get; set; }
-        public int StudentId { get; set; }
+        public string StudentId { get; set; }
         public DateTime? Date { get; set; }
 
         public virtual Deadline Deadline { get; set; }
