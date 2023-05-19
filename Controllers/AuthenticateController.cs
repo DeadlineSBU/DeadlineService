@@ -9,12 +9,6 @@ using System.Security.Cryptography;
 using System.Text;
 using DeadLine.DataProvide;
 using DeadLine.Models;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using Newtonsoft.Json;
 using Deadline.redis;
 
 namespace DeadLine.Controllers
