@@ -7,7 +7,7 @@ namespace DeadLine.Repos
         public Task<object> GetCourse(string userId,int id);
 
         public Task<object> JoinCourse(string studentId, JoinCourseDTO dto);
-        public Task<object> GetStudents(int id);
+        public Task<object> GetStudents(string userId, int id);
 
         public Task<object> GetDeadlines(int id);
         public Task<object> GetDiscussions(int id);

@@ -61,7 +61,7 @@ namespace DeadLine.Controllers
                     return Unauthorized();
                 var userId = getUserId();
 
-                var res = await _courseRepo.AddCourse(userId,dto);
+                var res = await _courseRepo.AddCourse(userId, dto);
 
                 return Ok(res);
             }
@@ -73,14 +73,13 @@ namespace DeadLine.Controllers
 
         [HttpGet]
         [Route("getCourseById/{id}")]
-        public async Task<IActionResult> GetCourse( int id)
+        public async Task<IActionResult> GetCourse(int id)
         {
-            System.Console.WriteLine(id);
             try
             {
                 var userId = getUserId();
 
-                var res = await _courseRepo.GetCourse(userId,id);
+                var res = await _courseRepo.GetCourse(userId, id);
 
                 return Ok(res);
             }
@@ -90,8 +89,41 @@ namespace DeadLine.Controllers
             }
         }
 
-        // public async Task<IActionResult> JoinCourse(int studentId, JoinCourseDTO dto);
-        // public async Task<IActionResult> GetStudents(int id);
+        [HttpPost]
+        [Route("JoinCourse/{id}")]
+        public async Task<IActionResult> JoinCourse([FromBody] JoinCourseDTO dto)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _courseRepo.JoinCourse(userId, dto);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetStudentsById/{id}")]
+        public async Task<IActionResult> GetStudents(int id)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _courseRepo.GetStudents(userId, id);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         // public async Task<IActionResult> GetDeadlines(int id);
         // public async Task<IActionResult> GetDiscussions(int id);
