@@ -293,11 +293,11 @@ namespace DeadLine.DataProvide
 
             modelBuilder.Entity<StudentCourse>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("StudentCourse");
 
                 entity.HasIndex(e => e.CourseId, "fk_StudentCourse_Course1_idx");
+
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.CourseId).HasColumnName("courseId");
 
@@ -309,7 +309,7 @@ namespace DeadLine.DataProvide
                     .HasColumnName("studentId");
 
                 entity.HasOne(d => d.Course)
-                    .WithMany()
+                    .WithMany(p => p.StudentCourses)
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_StudentCourse_Course1");
