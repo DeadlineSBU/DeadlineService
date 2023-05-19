@@ -14,6 +14,8 @@ namespace DeadLine.DataProvide
 
         public int Id { get; set; }
         public byte IsOpen { get; set; }
+        public string Title { get; set; }
+
         public DateTime? CreatedDate { get; set; }
         public DateTime? OpenDate { get; set; }
         public int CourseId { get; set; }

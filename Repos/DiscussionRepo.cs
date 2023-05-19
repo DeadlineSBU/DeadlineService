@@ -18,9 +18,27 @@ namespace DeadLine.Repos
             throw new NotImplementedException();
         }
 
-        public Task<object> AddDiscussion(string professorId, AddDiscussionDTO dto)
+        public async Task<object> AddDiscussion(string professorId, AddDiscussionDTO dto)
         {
-            throw new NotImplementedException();
+            var course = _context.Courses.Where(c => c.ProfessorId == professorId && c.Id == dto.CourseId).FirstOrDefault();
+            if (course == null) throw new InvalidOperationException("not permitted");
+            var discussion = _context.Discussions.Where(d => d.Title == dto.Title && d.CourseId == dto.CourseId);
+            if (discussion != null) throw new InvalidOperationException("is already created");
+
+            await _context.Discussions.AddAsync(
+                new Discussion
+                {
+                    Title = dto.Title,
+                    OpenDate = dto.OpenDate,
+                    CreatedDate = DateTime.Now,
+                    IsOpen = dto.IsOpen,
+                    CourseId = dto.CourseId
+                });
+
+            await _context.SaveChangesAsync();
+            return new { message = "Added Sucessfully" };
+
+
         }
 
         public Task<object> GetDiscussion(string userId, int id)
