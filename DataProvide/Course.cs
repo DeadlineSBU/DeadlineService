@@ -19,11 +19,11 @@ namespace DeadLine.DataProvide
         public int? MaxSize { get; set; }
         public DateTime? CreatedDate { get; set; }
         public int ProfessorId { get; set; }
-        public int CourseStatusId { get; set; }
+        public int CourseStatus { get; set; }
         public string ShareId { get; set; }
-        public string PasswordHash { get; set; }
+        public string Password { get; set; }
+        public string Description { get; set; }
 
-        public virtual CourseStatus CourseStatus { get; set; }
         public virtual ICollection<CourseAnnouncement> CourseAnnouncements { get; set; }
         public virtual ICollection<Deadline> Deadlines { get; set; }
         public virtual ICollection<Discussion> Discussions { get; set; }

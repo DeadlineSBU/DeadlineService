@@ -20,7 +20,6 @@ namespace DeadLine.DataProvide
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<CourseAnnouncement> CourseAnnouncements { get; set; }
-        public virtual DbSet<CourseStatus> CourseStatuses { get; set; }
         public virtual DbSet<Deadline> Deadlines { get; set; }
         public virtual DbSet<DeadlineAnnouncement> DeadlineAnnouncements { get; set; }
         public virtual DbSet<DeadlinePenalty> DeadlinePenalties { get; set; }
@@ -70,13 +69,15 @@ namespace DeadLine.DataProvide
             {
                 entity.ToTable("Course");
 
-                entity.HasIndex(e => e.CourseStatusId, "fk_Course_CourseStatus1_idx");
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.CourseStatusId).HasColumnName("courseStatusId");
+                entity.Property(e => e.CourseStatus).HasColumnName("courseStatus");
 
                 entity.Property(e => e.CreatedDate).HasColumnName("createdDate");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(999)
+                    .HasColumnName("description");
 
                 entity.Property(e => e.MaxSize).HasColumnName("maxSize");
 
@@ -84,10 +85,10 @@ namespace DeadLine.DataProvide
                     .HasMaxLength(45)
                     .HasColumnName("name");
 
-                entity.Property(e => e.PasswordHash)
+                entity.Property(e => e.Password)
                     .IsRequired()
                     .HasMaxLength(45)
-                    .HasColumnName("passwordHash");
+                    .HasColumnName("password");
 
                 entity.Property(e => e.ProfessorId).HasColumnName("professorId");
 
@@ -95,12 +96,6 @@ namespace DeadLine.DataProvide
                     .IsRequired()
                     .HasMaxLength(45)
                     .HasColumnName("shareId");
-
-                entity.HasOne(d => d.CourseStatus)
-                    .WithMany(p => p.Courses)
-                    .HasForeignKey(d => d.CourseStatusId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_Course_CourseStatus1");
             });
 
             modelBuilder.Entity<CourseAnnouncement>(entity =>
@@ -127,17 +122,6 @@ namespace DeadLine.DataProvide
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_CourseAnnouncement_Course1");
-            });
-
-            modelBuilder.Entity<CourseStatus>(entity =>
-            {
-                entity.ToTable("CourseStatus");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.Name)
-                    .HasMaxLength(45)
-                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<Deadline>(entity =>

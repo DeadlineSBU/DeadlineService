@@ -1,7 +1,7 @@
 using DeadLine.Models; 
 namespace DeadLine.Repos
 {
-    interface ICourseRepo
+    public interface ICourseRepo
     {
         public Task<object> AddCourse(AddCourseDTO dto);
         public Task<object> GetCourse(int id);

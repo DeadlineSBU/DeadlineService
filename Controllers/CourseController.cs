@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using Deadline.redis;
+using DeadLine.Repos;
 
 namespace DeadLine.Controllers
 {
@@ -29,13 +30,16 @@ namespace DeadLine.Controllers
         private readonly IRedisCache _redisCache;
         private readonly IConfiguration _configuration;
 
+        private readonly ICourseRepo _courseRepo;
+
         public CourseController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ApplicationDbContext context,
             IRedisCache redisCache,
-            IHttpClientFactory client
+            IHttpClientFactory client,
+            ICourseRepo courseRepo
             )
         {
             _userManager = userManager;
@@ -43,6 +47,7 @@ namespace DeadLine.Controllers
             _configuration = configuration;
             _context = context;
             _redisCache = redisCache;
+            _courseRepo = courseRepo;
         }
 
         [Authorize]
@@ -52,12 +57,12 @@ namespace DeadLine.Controllers
         {
             try
             {
-                if(!canAccessProf(true))
+                if (!canAccessProf(true))
                     return Unauthorized();
 
-
-
-                return Ok();
+                var res = await _courseRepo.AddCourse(dto);
+                
+                return Ok(res);
             }
             catch (Exception ex)
             {
