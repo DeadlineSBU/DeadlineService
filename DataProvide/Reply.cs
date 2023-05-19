@@ -11,6 +11,7 @@ namespace DeadLine.DataProvide
         public DateTime? Date { get; set; }
         public int CommentId { get; set; }
         public string UserId { get; set; }
+        public string Value { get; set; }
 
         public virtual Comment Comment { get; set; }
     }

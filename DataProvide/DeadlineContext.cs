@@ -223,12 +223,12 @@ namespace DeadLine.DataProvide
                 entity.Property(e => e.IsOpen)
                     .HasColumnType("tinyint")
                     .HasColumnName("isOpen");
-                
-                 entity.Property(e => e.Title)
-                    .HasMaxLength(99)
-                    .HasColumnName("title");
 
                 entity.Property(e => e.OpenDate).HasColumnName("openDate");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(99)
+                    .HasColumnName("title");
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Discussions)
@@ -287,6 +287,11 @@ namespace DeadLine.DataProvide
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnName("userId");
+
+                entity.Property(e => e.Value)
+                    .IsRequired()
+                    .HasMaxLength(999)
+                    .HasColumnName("value");
 
                 entity.HasOne(d => d.Comment)
                     .WithMany(p => p.Replies)

@@ -13,6 +13,7 @@ namespace DeadLine.Repos
             _context = context;
             _userContext = userContext;
         }
+
         public Task<object> AddComment(string userId, int id, CommentDTO dto)
         {
             throw new NotImplementedException();
@@ -20,10 +21,16 @@ namespace DeadLine.Repos
 
         public async Task<object> AddDiscussion(string professorId, AddDiscussionDTO dto)
         {
-            var course = _context.Courses.Where(c => c.ProfessorId == professorId && c.Id == dto.CourseId).FirstOrDefault();
-            if (course == null) throw new InvalidOperationException("not permitted");
-            var discussion = _context.Discussions.Where(d => d.Title == dto.Title && d.CourseId == dto.CourseId);
-            if (discussion != null) throw new InvalidOperationException("is already created");
+            var course = _context.Courses
+                .Where(c => c.ProfessorId == professorId && c.Id == dto.CourseId)
+                .FirstOrDefault();
+            if (course == null)
+                throw new InvalidOperationException("not permitted");
+            var discussion = _context.Discussions.Where(
+                d => d.Title == dto.Title && d.CourseId == dto.CourseId
+            ).FirstOrDefault();
+            if (discussion != null)
+                throw new InvalidOperationException("is already created");
 
             await _context.Discussions.AddAsync(
                 new Discussion
@@ -33,17 +40,50 @@ namespace DeadLine.Repos
                     CreatedDate = DateTime.Now,
                     IsOpen = dto.IsOpen,
                     CourseId = dto.CourseId
-                });
+                }
+            );
 
             await _context.SaveChangesAsync();
             return new { message = "Added Sucessfully" };
-
-
         }
 
-        public Task<object> GetDiscussion(string userId, int id)
+        public async Task<object> GetDiscussion(string userId, int id)
         {
-            throw new NotImplementedException();
+            var discussion = _context.Discussions.Where(d => d.Id == id).FirstOrDefault();
+            if (discussion == null)
+                throw new InvalidDataException("discussion not founded");
+            var course = _context.Courses
+                .Where(c => c.ProfessorId == userId && discussion.CourseId == c.Id)
+                .FirstOrDefault();
+            if (course == null)
+                throw new InvalidOperationException("not permitted");
+
+            var data = (
+                from comment in _context.Comments.AsEnumerable()
+                where comment.DiscussionId == id
+                join reply in _context.Replies.AsEnumerable()
+                    on comment.Id equals reply.CommentId
+                    into commentReplies
+                select new
+                {
+                    Date = comment.Date,
+                    Owner = comment.UserId,
+                    CommentId = comment.Id,
+                    Value = comment.Value,
+                    Replies = (
+                        from reply in commentReplies
+                        select new
+                        {
+                            Date = reply.Date,
+                            Owner = reply.UserId,
+                            ReplyId = reply.Id,
+                            Value = reply.Value,
+                        }
+                    ).ToList()
+                }
+            ).ToList();
+
+            return data;
         }
 
         public Task<object> GetProfessorDiscussions(string userId)
