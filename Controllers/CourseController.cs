@@ -95,7 +95,7 @@ namespace DeadLine.Controllers
         {
             try
             {
-                 if (!canAccessProf(false))
+                if (!canAccessProf(false))
                     return Unauthorized();
                 var userId = getUserId();
 
@@ -129,7 +129,8 @@ namespace DeadLine.Controllers
 
         [HttpGet]
         [Route("GetDeadlinesById/{id}")]
-         public async Task<IActionResult> GetDeadlines(int id){
+        public async Task<IActionResult> GetDeadlines(int id)
+        {
             try
             {
                 var userId = getUserId();
@@ -142,10 +143,66 @@ namespace DeadLine.Controllers
             {
                 return BadRequest(ex.Message);
             }
-         }
-        // public async Task<IActionResult> GetDiscussions(int id);
-        // public async Task<IActionResult> GetProfessorCourses(int id);
-        // public async Task<IActionResult> GetStudentCourses(int id);
+        }
+        [HttpGet]
+        [Route("GetDiscussionsById/{id}")]
+        public async Task<IActionResult> GetDiscussions(int id)
+        {
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _courseRepo.GetDiscussions(userId, id);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetProfessorCourses")]
+        public async Task<IActionResult> GetProfessorCourses()
+        {
+            try
+            {
+                if (!canAccessProf(true))
+                    return Unauthorized();
+
+                var userId = getUserId();
+
+                var res = await _courseRepo.GetProfessorCourses(userId);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetStudentCourses")]
+        public async Task<IActionResult> GetStudentCourses(int id)
+        {
+            try
+            {
+                if (!canAccessProf(false))
+                    return Unauthorized();
+
+                var userId = getUserId();
+
+                var res = await _courseRepo.GetProfessorCourses(userId);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
         private bool canAccessProf(bool professor)
