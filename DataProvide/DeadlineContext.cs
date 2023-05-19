@@ -51,7 +51,10 @@ namespace DeadLine.DataProvide
 
                 entity.Property(e => e.DiscussionId).HasColumnName("discussionId");
 
-                entity.Property(e => e.UserId).HasColumnName("userId");
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("userId");
 
                 entity.Property(e => e.Value)
                     .IsRequired()
@@ -90,7 +93,10 @@ namespace DeadLine.DataProvide
                     .HasMaxLength(45)
                     .HasColumnName("password");
 
-                entity.Property(e => e.ProfessorId).HasColumnName("professorId");
+                entity.Property(e => e.ProfessorId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("professorId");
 
                 entity.Property(e => e.ShareId)
                     .IsRequired()
@@ -245,7 +251,10 @@ namespace DeadLine.DataProvide
 
                 entity.Property(e => e.Grade).HasColumnName("grade");
 
-                entity.Property(e => e.StudentId).HasColumnName("studentId");
+                entity.Property(e => e.StudentId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("studentId");
 
                 entity.Property(e => e.Url)
                     .HasMaxLength(999)
@@ -270,7 +279,10 @@ namespace DeadLine.DataProvide
 
                 entity.Property(e => e.Date).HasColumnName("date");
 
-                entity.Property(e => e.UserId).HasColumnName("userId");
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("userId");
 
                 entity.HasOne(d => d.Comment)
                     .WithMany(p => p.Replies)
@@ -291,7 +303,10 @@ namespace DeadLine.DataProvide
 
                 entity.Property(e => e.JoinDate).HasColumnName("joinDate");
 
-                entity.Property(e => e.StudentId).HasColumnName("studentId");
+                entity.Property(e => e.StudentId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("studentId");
 
                 entity.HasOne(d => d.Course)
                     .WithMany()

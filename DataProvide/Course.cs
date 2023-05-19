@@ -18,7 +18,7 @@ namespace DeadLine.DataProvide
         public string Name { get; set; }
         public int? MaxSize { get; set; }
         public DateTime? CreatedDate { get; set; }
-        public int ProfessorId { get; set; }
+        public string ProfessorId { get; set; }
         public int CourseStatus { get; set; }
         public string ShareId { get; set; }
         public string Password { get; set; }

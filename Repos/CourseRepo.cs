@@ -14,7 +14,7 @@ namespace DeadLine.Repos
             _userContext = userContext;
         }
 
-        public async Task<object> AddCourse(AddCourseDTO dto)
+        public async Task<object> AddCourse( string professorId,AddCourseDTO dto)
         {
             var exist = _context.Courses
                 .Where(x => x.ShareId == dto.ShareId || x.Name == dto.Title)
@@ -25,6 +25,7 @@ namespace DeadLine.Repos
             await _context.Courses.AddAsync(
                 new Course
                 {
+                    ProfessorId = professorId,
                     Name = dto.Title,
                     ShareId = dto.ShareId,
                     Password = dto.Password,
@@ -38,11 +39,16 @@ namespace DeadLine.Repos
             return new { message = "Added Sucessfully" };
         }
 
-        public async Task<object> GetCourse(int id)
+        public async Task<object> GetCourse(string userId, int id)
         {
             var course = _context.Courses.Where(c => c.Id == id).FirstOrDefault();
             if (course == null)
                 throw new InvalidDataException("course is not founded");
+
+            var students = _context.StudentCourses.Where(sc => sc.StudentId == userId && sc.CourseId == id).FirstOrDefault();
+            if (students == null && course.ProfessorId != userId)
+                throw new InvalidDataException("course is not permitted");
+
             return new
             {
                 course.Id,
@@ -74,7 +80,7 @@ namespace DeadLine.Repos
             return discussions;
         }
 
-        public async Task<object> GetProfessorCourses(int id)
+        public async Task<object> GetProfessorCourses(string id)
         {
             var courses = _context.Courses.Where(c => c.ProfessorId == id).ToList();
             if (courses == null)
@@ -93,7 +99,7 @@ namespace DeadLine.Repos
                    };
         }
 
-        public async Task<object> GetStudentCourses(int id)
+        public async Task<object> GetStudentCourses(string id)
         {
             var studentCourses = _context.StudentCourses.Where(c => c.StudentId == id).ToList();
             if (studentCourses == null)
@@ -128,7 +134,7 @@ namespace DeadLine.Repos
                     });
         }
 
-        public async Task<object> JoinCourse(int studentId, JoinCourseDTO dto)
+        public async Task<object> JoinCourse(string studentId, JoinCourseDTO dto)
         {
             var course = _context.Courses.Where(c => c.ShareId == dto.ShareId).FirstOrDefault();
             if (course == null) throw new InvalidDataException("course is not founded");

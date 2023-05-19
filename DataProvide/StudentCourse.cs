@@ -8,7 +8,7 @@ namespace DeadLine.DataProvide
     public partial class StudentCourse
     {
         public int CourseId { get; set; }
-        public int StudentId { get; set; }
+        public string StudentId { get; set; }
         public DateTime JoinDate { get; set; }
 
         public virtual Course Course { get; set; }
