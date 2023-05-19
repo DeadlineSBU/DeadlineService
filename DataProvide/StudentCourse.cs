@@ -10,6 +10,7 @@ namespace DeadLine.DataProvide
         public int CourseId { get; set; }
         public string StudentId { get; set; }
         public DateTime JoinDate { get; set; }
+        public int Id { get; set; }
 
         public virtual Course Course { get; set; }
     }

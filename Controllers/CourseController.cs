@@ -95,6 +95,8 @@ namespace DeadLine.Controllers
         {
             try
             {
+                 if (!canAccessProf(false))
+                    return Unauthorized();
                 var userId = getUserId();
 
                 var res = await _courseRepo.JoinCourse(userId, dto);
@@ -107,7 +109,7 @@ namespace DeadLine.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("GetStudentsById/{id}")]
         public async Task<IActionResult> GetStudents(int id)
         {
@@ -125,7 +127,22 @@ namespace DeadLine.Controllers
             }
         }
 
-        // public async Task<IActionResult> GetDeadlines(int id);
+        [HttpGet]
+        [Route("GetDeadlinesById/{id}")]
+         public async Task<IActionResult> GetDeadlines(int id){
+            try
+            {
+                var userId = getUserId();
+
+                var res = await _courseRepo.GetDeadlines(userId, id);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+         }
         // public async Task<IActionResult> GetDiscussions(int id);
         // public async Task<IActionResult> GetProfessorCourses(int id);
         // public async Task<IActionResult> GetStudentCourses(int id);

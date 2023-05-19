@@ -12,6 +12,7 @@ namespace DeadLine.DataProvide
             CourseAnnouncements = new HashSet<CourseAnnouncement>();
             Deadlines = new HashSet<Deadline>();
             Discussions = new HashSet<Discussion>();
+            StudentCourses = new HashSet<StudentCourse>();
         }
 
         public int Id { get; set; }
@@ -27,5 +28,6 @@ namespace DeadLine.DataProvide
         public virtual ICollection<CourseAnnouncement> CourseAnnouncements { get; set; }
         public virtual ICollection<Deadline> Deadlines { get; set; }
         public virtual ICollection<Discussion> Discussions { get; set; }
+        public virtual ICollection<StudentCourse> StudentCourses { get; set; }
     }
 }
