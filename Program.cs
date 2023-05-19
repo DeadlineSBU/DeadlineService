@@ -5,12 +5,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using Microsoft.Extensions.Configuration;
 using Deadline.redis;
-using System.Configuration;
 using DeadLine.Repos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("sqlserverconnection")));
 builder.Services.AddDbContext<DeadlineContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("mysqlconnection")));
 
-builder.Services.AddScoped<ICourseRepo,CourseRepo>();
+builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped<IDiscussionRepo, DiscussionRepo>();
+
 
 // For Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -118,11 +115,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-    app.UseCors(x => x
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .SetIsOriginAllowed(origin => true)
-                    .AllowCredentials());
+app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
 
 
 app.UseAuthentication();

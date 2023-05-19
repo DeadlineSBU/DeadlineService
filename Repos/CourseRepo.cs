@@ -71,7 +71,7 @@ namespace DeadLine.Repos
             var students = _context.StudentCourses.Where(sc => sc.StudentId == userId && sc.CourseId == id).FirstOrDefault();
             if (students == null && course.ProfessorId != userId)
                 throw new InvalidDataException("operation is not permitted");
-            
+
             var deadlines = (from d in course.Deadlines select d.Id).ToList();
             return deadlines;
         }
@@ -81,6 +81,11 @@ namespace DeadLine.Repos
             var course = _context.Courses.Where(c => c.Id == id).FirstOrDefault();
             if (course == null)
                 throw new InvalidDataException("course is not founded");
+            
+            var students = _context.StudentCourses.Where(sc => sc.StudentId == userId && sc.CourseId == id).FirstOrDefault();
+            if (students == null && course.ProfessorId != userId)
+                throw new InvalidDataException("operation is not permitted");
+
             var discussions = (from d in course.Discussions select d.Id).ToList();
             return discussions;
         }
@@ -130,7 +135,7 @@ namespace DeadLine.Repos
             var s = _context.StudentCourses.Where(sc => sc.StudentId == userId && sc.CourseId == id).FirstOrDefault();
             if (s == null && c == null)
                 throw new InvalidDataException("data is not permitted");
-            
+
             var courseStudents = _context.StudentCourses.Where(c => c.CourseId == id).ToList();
             var users = _userContext.Users.ToList();
             return (from cc in courseStudents
@@ -150,9 +155,9 @@ namespace DeadLine.Repos
             if (course == null) throw new InvalidDataException("course is not founded");
             if (course.Password != dto.Password) throw new InvalidOperationException("password is not correct");
             var exist = _context.StudentCourses.Where(c => c.CourseId == course.Id && c.StudentId == studentId).FirstOrDefault();
-            if(exist != null) throw new InvalidOperationException("already added");
-            
-            _context.StudentCourses.Add(new StudentCourse { CourseId = course.Id, StudentId = studentId ,JoinDate= DateTime.Now});
+            if (exist != null) throw new InvalidOperationException("already added");
+
+            _context.StudentCourses.Add(new StudentCourse { CourseId = course.Id, StudentId = studentId, JoinDate = DateTime.Now });
             await _context.SaveChangesAsync();
             return new { message = "Added Sucessfully" };
 

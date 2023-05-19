@@ -223,6 +223,10 @@ namespace DeadLine.DataProvide
                 entity.Property(e => e.IsOpen)
                     .HasColumnType("tinyint")
                     .HasColumnName("isOpen");
+                
+                 entity.Property(e => e.Title)
+                    .HasMaxLength(99)
+                    .HasColumnName("title");
 
                 entity.Property(e => e.OpenDate).HasColumnName("openDate");
 
