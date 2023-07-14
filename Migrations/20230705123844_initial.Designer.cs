@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeadLine.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230518072948_second")]
-    partial class second
+    [Migration("20230705123844_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

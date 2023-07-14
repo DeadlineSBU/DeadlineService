@@ -18,7 +18,7 @@ namespace DeadLine.DataProvide
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Data Source=10.51.10.137,1434;Initial Catalog=Deadline;User ID=sa;Password=Deadline123;TrustServerCertificate=true");
+                optionsBuilder.UseSqlServer("Data Source=127.0.0.1,1434;Initial Catalog=bazigone;User ID=sa;Password=Bazigone123;TrustServerCertificate=true");
             }
         }
         protected override void OnModelCreating(ModelBuilder builder)

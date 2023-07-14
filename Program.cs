@@ -6,17 +6,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Deadline.redis;
-using DeadLine.Repos;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("sqlserverconnection")));
-builder.Services.AddDbContext<DeadlineContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("mysqlconnection")));
+//builder.Services.AddDbContext<DeadlineContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("mysqlconnection")));
 
-builder.Services.AddScoped<ICourseRepo, CourseRepo>();
-builder.Services.AddScoped<IDiscussionRepo, DiscussionRepo>();
+
 
 
 // For Identity
